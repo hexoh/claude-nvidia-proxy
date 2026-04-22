@@ -1,3 +1,5 @@
+import { getLogger } from '../logger/index.js';
+
 function checkInboundAuth(req, expected) {
   const auth = (req.headers.authorization || '').trim();
   if (auth.toLowerCase().startsWith('bearer ')) {
@@ -108,6 +110,7 @@ function sanitizeOpenAIRequest(req) {
 }
 
 function logForwardedRequest(reqID, cfg, anthropicReq, openaiReq) {
+  const logger = getLogger();
   const inSummary = {
     model: anthropicReq.model,
     max_tokens: anthropicReq.max_tokens,
@@ -115,25 +118,26 @@ function logForwardedRequest(reqID, cfg, anthropicReq, openaiReq) {
     messages: anthropicReq.messages?.length || 0,
     tools: anthropicReq.tools?.length || 0
   };
-  console.log(`[${reqID}] inbound summary=${mustJSONTrunc(inSummary, cfg.logBodyMax)}`);
+  logger.logInfo(`[${reqID}] inbound summary=${mustJSONTrunc(inSummary, cfg.logBodyMax)}`);
 
   const out = sanitizeOpenAIRequest(openaiReq);
-  console.log(`[${reqID}] forward url=${cfg.upstreamURL}`);
-  console.log(`[${reqID}] forward headers=${mustJSONTrunc({
+  logger.logInfo(`[${reqID}] forward url=${cfg.upstreamURL}`);
+  logger.logInfo(`[${reqID}] forward headers=${mustJSONTrunc({
     'Content-Type': 'application/json',
     'Authorization': 'Bearer <redacted>'
   }, cfg.logBodyMax)}`);
-  console.log(`[${reqID}] forward body=${mustJSONTrunc(out, cfg.logBodyMax)}`);
+  logger.logInfo(`[${reqID}] forward body=${mustJSONTrunc(out, cfg.logBodyMax)}`);
 }
 
 function logForwardedUpstreamBody(reqID, cfg, body) {
+  const logger = getLogger();
   if (cfg.logBodyMax === 0) return;
 
   let s = typeof body === 'string' ? body : body.toString();
   if (s.length > cfg.logBodyMax) {
     s = s.substring(0, cfg.logBodyMax) + '...(truncated)';
   }
-  console.log(`[${reqID}] upstream body=${s}`);
+  logger.logInfo(`[${reqID}] upstream body=${s}`);
 }
 
 export {

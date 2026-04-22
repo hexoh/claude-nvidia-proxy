@@ -3,6 +3,7 @@ import https from 'https';
 import { URL } from 'url';
 import { writeJSONError, logForwardedUpstreamBody } from '../utils/index.js';
 import { mapFinishReason } from '../converter/index.js';
+import { getLogger } from '../logger/index.js';
 
 function doUpstreamJSON(ctx, cfg, openaiReq) {
   return new Promise((resolve, reject) => {
@@ -45,6 +46,7 @@ function doUpstreamJSON(ctx, cfg, openaiReq) {
 }
 
 async function proxyStream(res, req, cfg, reqID, openaiReq) {
+  const logger = getLogger();
   openaiReq.stream = true;
 
   const bodyBytes = JSON.stringify(openaiReq);
@@ -66,7 +68,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
 
   return new Promise((resolve, reject) => {
     const upReq = protocol.request(options, (upRes) => {
-      console.log(`[${reqID}] upstream status=${upRes.statusCode} (stream)`);
+      logger.logInfo(`[${reqID}] upstream status=${upRes.statusCode} (stream)`);
 
       if (upRes.statusCode < 200 || upRes.statusCode >= 300) {
         let raw = '';
@@ -288,9 +290,9 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
         encoder('message_stop', { type: 'message_stop' });
 
         if (cfg.logStreamPreviewMax > 0) {
-          console.log(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone} preview="${preview}"`);
+          logger.logInfo(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone} preview="${preview}"`);
         } else {
-          console.log(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone}`);
+          logger.logInfo(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone}`);
         }
 
         res.end();

@@ -10,9 +10,9 @@
   "type": "module",
   "scripts": {
     "build": "node build.js",
-    "start": "node dist/cli/index.js",
-    "dev": "node src/index.js",
-    "serve": "node src/index.js",
+    "start": "node dist/cli/index.js start",
+    "dev": "node src/cli/index.js start",
+    "serve": "node src/cli/index.js start",
     "test": "echo \"No tests yet\" && exit 0",
     "prepublishOnly": "npm run build"
   },
@@ -47,7 +47,8 @@
     "LICENSE"
   ],
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "openai": "^6.34.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0"
