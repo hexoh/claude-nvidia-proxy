@@ -1,0 +1,55 @@
+{
+  "name": "claude-nvidia-proxy",
+  "version": "1.0.0",
+  "description": "A proxy server that converts Anthropic API requests to NVIDIA API format",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "cnp": "./dist/cli/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node dist/cli/index.js",
+    "dev": "node src/index.js",
+    "serve": "node src/index.js",
+    "test": "echo \"No tests yet\" && exit 0",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "anthropic",
+    "nvidia",
+    "proxy",
+    "api",
+    "claude",
+    "llama",
+    "ai"
+  ],
+  "author": "hexoh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hexoh/claude-nvidia-proxy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hexoh/claude-nvidia-proxy/issues"
+  },
+  "homepage": "https://github.com/hexoh/claude-nvidia-proxy#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src",
+    "dist",
+    "build.js",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

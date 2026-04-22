@@ -1,0 +1,53 @@
+# Source files (we only publish dist/)
+service.js
+main.js
+main.go
+build.js
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test/
+origin/
+*.test.js
+*.spec.js
+
+# Documentation (keep README.md)
+docs
+CHANGELOG.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Other
+*.log
+tmp
+temp
+.env.example
