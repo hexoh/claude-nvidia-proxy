@@ -368,4 +368,4 @@ MIT
 
 ## Contributing
 
-Issues and Pull Requests are welcome! See [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)
+Issues and Pull Requests are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md)
