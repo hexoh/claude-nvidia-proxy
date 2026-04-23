@@ -29,6 +29,12 @@ async function main() {
   const command = process.argv[2];
   const args = process.argv.slice(3);
 
+  if (command === '--serve') {
+    const { serveCommand } = await import('./commands/serve.js');
+    await serveCommand();
+    return;
+  }
+
   if (command === '--help' || command === '-h') {
     console.log('Claude NVIDIA Proxy - CLI Tool');
     console.log('');
@@ -128,7 +134,7 @@ async function main() {
       }
       break;
     case 'test':
-      if (!args[0] || args[0] === '--help' || args[0] === '-h') {
+      if (args[0] === '--help' || args[0] === '-h') {
         await testHelpCommand();
         process.exit(0);
       }

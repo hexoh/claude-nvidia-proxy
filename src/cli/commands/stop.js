@@ -24,7 +24,9 @@ export async function stopCommand() {
       process.kill(pid, 0);
     } catch (e) {
       logger.logError('Service is not running');
-      fs.unlinkSync(PID_FILE);
+      if (fs.existsSync(PID_FILE)) {
+        fs.unlinkSync(PID_FILE);
+      }
       process.exit(1);
     }
 
@@ -47,7 +49,9 @@ export async function stopCommand() {
     while (attempts < maxAttempts) {
       const stopped = await checkStopped();
       if (stopped) {
-        fs.unlinkSync(PID_FILE);
+        if (fs.existsSync(PID_FILE)) {
+          fs.unlinkSync(PID_FILE);
+        }
         
         if (fs.existsSync(CLAUDE_BACKUP_FILE)) {
           fs.copyFileSync(CLAUDE_BACKUP_FILE, CLAUDE_SETTINGS_FILE);
@@ -64,7 +68,9 @@ export async function stopCommand() {
 
     logger.logError('Timeout stopping service, attempting force kill');
     process.kill(pid, 'SIGKILL');
-    fs.unlinkSync(PID_FILE);
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
     
     if (fs.existsSync(CLAUDE_BACKUP_FILE)) {
       fs.copyFileSync(CLAUDE_BACKUP_FILE, CLAUDE_SETTINGS_FILE);

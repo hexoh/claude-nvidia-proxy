@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import readline from 'readline';
 import { readConfigFile, readModelsFile } from '../../config/index.js';
+import { keySelect } from '../utils.js';
 
 const BASE_URL = 'https://integrate.api.nvidia.com/v1';
 const DEFAULT_PROMPT = 'Hello, please tell me a little about yourself.';
@@ -23,28 +23,9 @@ export async function testCommand(modelName) {
       process.exit(1);
     }
 
-    console.log('Available models:');
-    models.forEach((model, index) => {
-      console.log(`  ${index + 1}. ${model}`);
-    });
-    console.log('');
-
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    selectedModel = await new Promise(resolve => {
-      rl.question(`Select a model [1-${models.length}]: `, answer => {
-        rl.close();
-        const index = parseInt(answer.trim()) - 1;
-        if (isNaN(index) || index < 0 || index >= models.length) {
-          console.error('Invalid selection, using first model.');
-          resolve(models[0]);
-        } else {
-          resolve(models[index]);
-        }
-      });
+    selectedModel = await keySelect({
+      items: models,
+      title: 'Select a model'
     });
   }
 

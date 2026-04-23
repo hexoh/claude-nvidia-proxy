@@ -45,10 +45,10 @@ export async function statusCommand() {
       const config = readConfigFile();
       console.log('Configuration:');
       console.log(`  Config File: ${getConfigPath()}`);
-      console.log(`  Listen Address: ${config.addr}`);
-      console.log(`  Upstream URL: ${config.upstreamURL}`);
-      console.log(`  Auth Status: ${config.serverAPIKey ? 'Enabled' : 'Disabled'}`);
-      console.log(`  Timeout: ${config.timeout}ms`);
+      console.log(`  PROXY_URL: ${config.PROXY_URL}`);
+      console.log(`  API_BASE_URL: ${config.API_BASE_URL}`);
+      console.log(`  Auth Status: ${config.NV_API_KEY ? 'Enabled' : 'Disabled'}`);
+      console.log(`  TIMEOUT: ${config.TIMEOUT}ms`);
     } else {
       console.log('Configuration Status: Not configured');
       console.log('Please run: cnp config');

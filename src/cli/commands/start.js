@@ -2,9 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import readline from 'readline';
-import { loadConfig, getConfigPath, promptForConfig, writeConfigFile } from '../../config/index.js';
-import { createServer } from '../../server/index.js';
-import { getLogger, checkPortAvailable } from '../../logger/index.js';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { getConfigPath, promptForConfig, writeConfigFile } from '../../config/index.js';
+import { getLogger } from '../../logger/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PID_DIR = path.join(os.homedir(), '.claude-nvidia-proxy');
 const PID_FILE = path.join(PID_DIR, 'proxy.pid');
@@ -51,46 +55,41 @@ export async function startCommand() {
       }
     }
 
-    const cfg = loadConfig();
-    const [host, port] = cfg.PROXY_URL.split(':');
+    const cliPath = path.join(__dirname, '../../cli/index.js');
+    const startProcess = spawn('node', [cliPath, '--serve'], {
+      detached: true,
+      stdio: 'ignore',
+    });
 
-    const portAvailable = await checkPortAvailable(parseInt(port), host);
-    if (!portAvailable) {
-      logger.logError(`Port ${port} is already in use`);
+    startProcess.on('error', (error) => {
+      logger.logError(`Failed to start service: ${error.message}`);
       process.exit(1);
-    }
+    });
 
-    const server = createServer(cfg);
+    startProcess.unref();
+
+    logger.logInfo('Service started in background');
 
     if (!fs.existsSync(PID_DIR)) {
       fs.mkdirSync(PID_DIR, { recursive: true });
     }
-    fs.writeFileSync(PID_FILE, process.pid.toString());
 
-    logger.logInfo(`listening on ${cfg.PROXY_URL}`);
-    logger.logInfo(`upstream: ${cfg.API_BASE_URL}`);
+    let pidFound = false;
+    for (let i = 0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      if (fs.existsSync(PID_FILE)) {
+        pidFound = true;
+        break;
+      }
+    }
 
-    server.listen(parseInt(port), host);
+    if (pidFound) {
+      console.log('Service started successfully');
+    } else {
+      console.log('Service startup timeout, please check logs with: cnp logs');
+    }
 
-    process.on('SIGTERM', () => {
-      logger.logInfo('Received SIGTERM, shutting down...');
-      server.close(() => {
-        if (fs.existsSync(PID_FILE)) {
-          fs.unlinkSync(PID_FILE);
-        }
-        process.exit(0);
-      });
-    });
-
-    process.on('SIGINT', () => {
-      logger.logInfo('Received SIGINT, shutting down...');
-      server.close(() => {
-        if (fs.existsSync(PID_FILE)) {
-          fs.unlinkSync(PID_FILE);
-        }
-        process.exit(0);
-      });
-    });
+    process.exit(0);
 
   } catch (err) {
     logger.logError(`Failed to start service: ${err.message}`);

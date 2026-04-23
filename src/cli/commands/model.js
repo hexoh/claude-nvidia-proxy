@@ -6,6 +6,7 @@ import { getLogger } from '../../logger/index.js';
 import { readConfigFile, readModelsFile, writeModelsFile, modelExists, getConfigPath } from '../../config/index.js';
 import { startCommand } from './start.js';
 import { restartCommand } from './restart.js';
+import { keySelect } from '../utils.js';
 
 const CONFIG_DIR = path.join(os.homedir(), '.claude-nvidia-proxy');
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
@@ -141,46 +142,17 @@ export async function modelRmCommand(modelIdentifier) {
 }
 
 async function promptForModelSelection(models, modelName, defaultValue) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
-    console.log(`\nAvailable models for ${modelName}:`);
-    models.forEach((model, index) => {
-      const defaultMark = model === defaultValue ? ' (default)' : '';
-      console.log(`  ${index + 1}. ${model}${defaultMark}`);
-    });
-
-    const question = (prompt) => {
-      return new Promise((resolve) => {
-        rl.question(prompt, resolve);
-      });
-    };
-
-    const ask = async () => {
-      const answer = await question(`\nSelect model for ${modelName} [1-${models.length}, default: ${models.indexOf(defaultValue) + 1}]: `);
-      
-      if (!answer.trim()) {
-        rl.close();
-        resolve(defaultValue);
-        return;
-      }
-
-      const index = parseInt(answer.trim()) - 1;
-      if (isNaN(index) || index < 0 || index >= models.length) {
-        console.log('Invalid selection, please try again.');
-        await ask();
-        return;
-      }
-
-      rl.close();
-      resolve(models[index]);
-    };
-
-    ask();
+  const items = models.map(model => {
+    const defaultMark = model === defaultValue ? ' (default)' : '';
+    return `${model}${defaultMark}`;
   });
+
+  const selected = await keySelect({
+    items,
+    title: `Select model for ${modelName}`
+  });
+
+  return selected.replace(' (default)', '');
 }
 
 export async function modelSetupCommand() {
@@ -246,7 +218,7 @@ export async function modelSetupCommand() {
     fs.copyFileSync(CLAUDE_PROXY_SETTINGS_FILE, CLAUDE_SETTINGS_FILE);
     logger.logInfo(`Claude settings installed to: ${CLAUDE_SETTINGS_FILE}`);
 
-    const wasRunning = isServiceRunning();
+    /* const wasRunning = isServiceRunning();
 
     if (wasRunning) {
       logger.logInfo('Service is running, restarting...');
@@ -254,7 +226,7 @@ export async function modelSetupCommand() {
     } else {
       logger.logInfo('Service is not running, starting...');
       await startCommand();
-    }
+    } */
 
     console.log('\n========================================');
     console.log('Model configuration complete:');
