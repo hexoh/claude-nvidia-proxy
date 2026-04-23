@@ -85,19 +85,19 @@ function writeJSONError(res, status, code) {
       message: code
     }
   };
-  // 关键修复：判断 HTTP 响应头是否已经发给了客户端
+  // Critical fix: Check if HTTP response headers have already been sent to the client
   if (res.headersSent) {
-    // 如果已经在流式传输中报错，不能再设置 Header，只能追加 SSE 流错误事件并强行断开
+    // If error occurs during streaming, cannot set Header, only append SSE stream error event and force disconnect
     try {
       res.write(`event: error\ndata: ${JSON.stringify(errPayload)}\n\n`);
       res.end();
     } catch (e) {
-      // 忽略底层的网络断开异常
+      // Ignore underlying network disconnection exceptions
     }
     return;
   }
 
-  // 如果请求刚刚进来就报错（还没开始发流），则正常返回带有 HTTP 状态码的 JSON
+  // If error occurs just after request comes in (before streaming starts), return JSON with HTTP status code normally
   res.setHeader('Content-Type', 'application/json');
   res.writeHead(status);
   res.end(JSON.stringify(errPayload));
@@ -600,15 +600,15 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
             chunkCount++;
             const delta = chunkData.choices[0].delta;
 
-            // 【修复 1：文本必须优先于工具处理，防止后续打断工具流】
-            // 注意这里增加了判断，只处理真实有内容的文本，跳过空字符串
+            // [Fix 1: Text must be processed before tools to prevent subsequent interruption of tool flow]
+            // Note: Added check here to only process text with actual content, skip empty strings
             if (delta.content !== undefined && delta.content !== null && delta.content !== "") {
               textChars += delta.content.length;
               if (cfg.logStreamPreviewMax > 0 && preview.length < cfg.logStreamPreviewMax) {
                 preview += delta.content.substring(0, cfg.logStreamPreviewMax - preview.length);
               }
 
-              // 【修复 2：只要当前不是 text 块，就立刻新开一个 text 块，彻底废弃 hasTextBlock】
+              // [Fix 2: If current block is not text, immediately start a new text block, completely abandon hasTextBlock]
               if (currentBlockType !== 'text') {
                 closeCurrentBlock();
                 const idx = assignContentBlockIndex();
@@ -634,7 +634,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
               });
             }
 
-            // 【修复 1 延续：然后才是处理 Tool Calls】
+            // [Fix 1 continuation: Then process Tool Calls]
             if (delta.tool_calls && delta.tool_calls.length > 0) {
               for (const tc of delta.tool_calls) {
                 toolDeltaChunks++;
@@ -645,7 +645,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
                 const tcName = (tc.function?.name || '').trim() || `tool_${toolIndex}`;
 
                 if (!state) {
-                  // 这是新的工具调用，关闭前一个块（文本或上一个工具）
+                  // This is a new tool call, close the previous block (text or previous tool)
                   closeCurrentBlock();
                   const idx = assignContentBlockIndex();
                   state = { contentBlockIndex: idx, id: tcID, name: tcName };
@@ -687,7 +687,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
               }
             }
 
-            // 【处理 Finish Reason】
+            // [Handle Finish Reason]
             if (chunkData.choices[0].finish_reason) {
               finishReason = chunkData.choices[0].finish_reason;
               const stopReason = mapFinishReason(finishReason);
@@ -963,7 +963,7 @@ function main() {
   const server = http.createServer(async (req, res) => {
     console.log(`Received request: ${req.method} ${req.url}`);
 
-    // 处理跨域请求 (Claude Code 终端工具和浏览器 SDK 都可能用到)
+    // Handle CORS requests (Claude Code terminal tool and browser SDK may both use this)
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', '*');
@@ -974,7 +974,7 @@ function main() {
       return;
     }
 
-    // 忽略 URL 中的 Query 参数
+    // Ignore Query parameters in URL
     const urlPath = req.url.split('?')[0];
 
     if (req.method === 'POST' && urlPath === '/v1/messages') {
@@ -987,7 +987,7 @@ function main() {
         health: 'ok'
       }));
     } else {
-      // 必须返回标准的 Anthropic 格式报错，绝不能对未知路由返回 200 OK
+      // Must return standard Anthropic format error, never return 200 OK for unknown routes
       res.setHeader('Content-Type', 'application/json');
       res.writeHead(404);
       res.end(JSON.stringify({

@@ -6,12 +6,55 @@ import { configCommand } from './commands/config.js';
 import { statusCommand } from './commands/status.js';
 import { logsCommand } from './commands/logs.js';
 import { getLogger } from '../logger/index.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 const logger = getLogger();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packagePath = join(__dirname, '../../package.json');
+const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8'));
 
 async function main() {
   const command = process.argv[2];
   const args = process.argv.slice(3);
+
+  if (command === '--help' || command === '-h') {
+    console.log('Claude NVIDIA Proxy - CLI Tool');
+    console.log('');
+    console.log('Usage: cnp <command> [options]');
+    console.log('');
+    console.log('Commands:');
+    console.log('  start    Start the service');
+    console.log('  stop     Stop the service');
+    console.log('  restart  Restart the service');
+    console.log('  config   Interactive configuration');
+    console.log('  status   View service status');
+    console.log('  logs     View logs');
+    console.log('');
+    console.log('Options:');
+    console.log('  --help, -h       Show help information');
+    console.log('  --version, -v    Show version number');
+    console.log('');
+    console.log('Log command options:');
+    console.log('  --tail, -t        Follow logs in real-time');
+    console.log('  --lines=N, -n=N    Show specified number of lines (default: 50)');
+    console.log('  --error, -e       Show only error logs');
+    console.log('  --access, -a      Show only access logs');
+    console.log('');
+    console.log('Examples:');
+    console.log('  cnp start');
+    console.log('  cnp logs --tail');
+    console.log('  cnp logs --lines=100 --error');
+    process.exit(0);
+  }
+
+  if (command === '--version' || command === '-v') {
+    console.log(packageJson.version);
+    process.exit(0);
+  }
 
   switch (command) {
     case 'start':
@@ -33,25 +76,29 @@ async function main() {
       await logsCommand(args);
       break;
     default:
-      console.log('Claude NVIDIA Proxy - CLI 工具');
+      console.log('Claude NVIDIA Proxy - CLI Tool');
       console.log('');
-      console.log('用法: cnp <command> [options]');
+      console.log('Usage: cnp <command> [options]');
       console.log('');
-      console.log('命令:');
-      console.log('  start    启动服务');
-      console.log('  stop     停止服务');
-      console.log('  restart  重启服务');
-      console.log('  config   交互式配置');
-      console.log('  status   查看服务状态');
-      console.log('  logs     查看日志');
+      console.log('Commands:');
+      console.log('  start    Start the service');
+      console.log('  stop     Stop the service');
+      console.log('  restart  Restart the service');
+      console.log('  config   Interactive configuration');
+      console.log('  status   View service status');
+      console.log('  logs     View logs');
       console.log('');
-      console.log('日志命令选项:');
-      console.log('  --tail, -t        实时跟踪日志');
-      console.log('  --lines=N, -n=N    显示指定行数 (默认: 50)');
-      console.log('  --error, -e       只显示错误日志');
-      console.log('  --access, -a      只显示访问日志');
+      console.log('Options:');
+      console.log('  --help, -h       Show help information');
+      console.log('  --version, -v    Show version number');
       console.log('');
-      console.log('示例:');
+      console.log('Log command options:');
+      console.log('  --tail, -t        Follow logs in real-time');
+      console.log('  --lines=N, -n=N    Show specified number of lines (default: 50)');
+      console.log('  --error, -e       Show only error logs');
+      console.log('  --access, -a      Show only access logs');
+      console.log('');
+      console.log('Examples:');
       console.log('  cnp start');
       console.log('  cnp logs --tail');
       console.log('  cnp logs --lines=100 --error');
@@ -60,6 +107,6 @@ async function main() {
 }
 
 main().catch(err => {
-  logger.logError(`错误: ${err.message}`);
+  logger.logError(`Error: ${err.message}`);
   process.exit(1);
 });

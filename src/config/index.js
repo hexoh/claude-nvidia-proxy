@@ -43,45 +43,45 @@ function promptForConfig() {
     const questions = [
       {
         key: 'upstreamURL',
-        prompt: '请输入 NVIDIA API 地址',
+        prompt: 'Enter NVIDIA API URL',
         default: 'https://integrate.api.nvidia.com/v1/chat/completions',
         required: true
       },
       {
         key: 'providerAPIKey',
-        prompt: '请输入 NVIDIA API 密钥',
+        prompt: 'Enter NVIDIA API Key',
         default: '',
         required: true,
         password: true
       },
       {
         key: 'serverAPIKey',
-        prompt: '请输入服务器认证密钥 (可选，直接回车跳过)',
+        prompt: 'Enter server authentication key (optional, press Enter to skip)',
         default: '',
         required: false,
         password: true
       },
       {
         key: 'addr',
-        prompt: '请输入监听地址',
+        prompt: 'Enter listen address',
         default: 'localhost:8888',
         required: false
       },
       {
         key: 'timeout',
-        prompt: '请输入超时时间（秒）',
+        prompt: 'Enter timeout (seconds)',
         default: '300',
         required: false
       },
       {
         key: 'logBodyMax',
-        prompt: '请输入日志最大字符数',
+        prompt: 'Enter maximum log characters',
         default: '4096',
         required: false
       },
       {
         key: 'logStreamPreviewMax',
-        prompt: '请输入流式响应预览字符数',
+        prompt: 'Enter stream response preview characters',
         default: '256',
         required: false
       }
@@ -98,14 +98,14 @@ function promptForConfig() {
       }
 
       const q = questions[currentQuestion];
-      const defaultText = q.default ? ` [默认: ${q.default}]` : '';
+      const defaultText = q.default ? ` [default: ${q.default}]` : '';
       const promptText = `${q.prompt}${defaultText}: `;
 
       rl.question(promptText, (answer) => {
         const value = answer.trim() || q.default;
 
         if (q.required && !value) {
-          console.log('此项为必填项，请重新输入。');
+          console.log('This field is required, please re-enter.');
           askNext();
           return;
         }
@@ -113,7 +113,7 @@ function promptForConfig() {
         if (q.key === 'timeout' || q.key === 'logBodyMax' || q.key === 'logStreamPreviewMax') {
           const num = parseInt(value, 10);
           if (isNaN(num) || num <= 0) {
-            console.log('请输入有效的数字。');
+            console.log('Please enter a valid number.');
             askNext();
             return;
           }
@@ -200,15 +200,15 @@ function mergeConfig(jsonConfig) {
 
 function ensureConfig() {
   if (!configExists()) {
-    console.log('配置文件不存在，开始交互式配置...');
-    console.log(`配置文件将创建在: ${CONFIG_FILE}`);
+    console.log('Configuration file does not exist, starting interactive configuration...');
+    console.log(`Configuration file will be created at: ${CONFIG_FILE}`);
     console.log('');
 
     const cfg = promptForConfig();
     writeConfigFile(cfg);
 
     console.log('');
-    console.log(`配置文件已创建: ${CONFIG_FILE}`);
+    console.log(`Configuration file created: ${CONFIG_FILE}`);
     return cfg;
   }
 

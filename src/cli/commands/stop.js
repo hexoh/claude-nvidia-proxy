@@ -11,7 +11,7 @@ export async function stopCommand() {
 
   try {
     if (!fs.existsSync(PID_FILE)) {
-      logger.logError('服务未运行');
+      logger.logError('Service is not running');
       process.exit(1);
     }
 
@@ -20,7 +20,7 @@ export async function stopCommand() {
     try {
       process.kill(pid, 0);
     } catch (e) {
-      logger.logError('服务未运行');
+      logger.logError('Service is not running');
       fs.unlinkSync(PID_FILE);
       process.exit(1);
     }
@@ -45,21 +45,21 @@ export async function stopCommand() {
       const stopped = await checkStopped();
       if (stopped) {
         fs.unlinkSync(PID_FILE);
-        logger.logInfo('服务已停止');
+        logger.logInfo('Service stopped');
         process.exit(0);
       }
       attempts++;
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    logger.logError('停止服务超时，尝试强制终止');
+    logger.logError('Timeout stopping service, attempting force kill');
     process.kill(pid, 'SIGKILL');
     fs.unlinkSync(PID_FILE);
-    logger.logInfo('服务已强制停止');
+    logger.logInfo('Service force stopped');
     process.exit(0);
 
   } catch (err) {
-    logger.logError(`停止服务失败: ${err.message}`);
+    logger.logError(`Failed to stop service: ${err.message}`);
     process.exit(1);
   }
 }

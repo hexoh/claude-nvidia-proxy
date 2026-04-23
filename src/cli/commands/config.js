@@ -13,32 +13,32 @@ export async function configCommand() {
       });
 
       const answer = await new Promise(resolve => {
-        rl.question('配置文件已存在，是否重新配置？(y/N): ', resolve);
+        rl.question('Configuration file already exists, reconfigure? (y/N): ', resolve);
       });
       rl.close();
 
       if (answer.toLowerCase() !== 'y') {
-        logger.logInfo(`配置文件位置: ${getConfigPath()}`);
+        logger.logInfo(`Configuration file location: ${getConfigPath()}`);
         const currentConfig = readConfigFile();
-        console.log('当前配置:');
+        console.log('Current configuration:');
         console.log(JSON.stringify(currentConfig, null, 2));
         process.exit(0);
       }
     }
 
-    logger.logInfo('开始交互式配置...');
-    logger.logInfo(`配置文件将创建在: ${getConfigPath()}`);
+    logger.logInfo('Starting interactive configuration...');
+    logger.logInfo(`Configuration file will be created at: ${getConfigPath()}`);
     console.log('');
 
     const cfg = await promptForConfig();
     writeConfigFile(cfg);
 
     console.log('');
-    logger.logInfo(`配置文件已创建: ${getConfigPath()}`);
+    logger.logInfo(`Configuration file created: ${getConfigPath()}`);
     process.exit(0);
 
   } catch (err) {
-    logger.logError(`配置失败: ${err.message}`);
+    logger.logError(`Configuration failed: ${err.message}`);
     process.exit(1);
   }
 }

@@ -13,7 +13,7 @@ export async function startCommand() {
 
   try {
     if (!fs.existsSync(getConfigPath())) {
-      logger.logError('配置文件不存在，请先运行: cnp config');
+      logger.logError('Configuration file does not exist, please run: cnp config');
       process.exit(1);
     }
 
@@ -21,7 +21,7 @@ export async function startCommand() {
       const pid = parseInt(fs.readFileSync(PID_FILE, 'utf-8'));
       try {
         process.kill(pid, 0);
-        logger.logError(`服务已在运行 (PID: ${pid})`);
+        logger.logError(`Service is already running (PID: ${pid})`);
         process.exit(1);
       } catch (e) {
         fs.unlinkSync(PID_FILE);
@@ -33,7 +33,7 @@ export async function startCommand() {
 
     const portAvailable = await checkPortAvailable(parseInt(port), host);
     if (!portAvailable) {
-      logger.logError(`端口 ${port} 已被占用`);
+      logger.logError(`Port ${port} is already in use`);
       process.exit(1);
     }
 
@@ -75,7 +75,7 @@ export async function startCommand() {
     });
 
   } catch (err) {
-    logger.logError(`启动失败: ${err.message}`);
+    logger.logError(`Failed to start service: ${err.message}`);
     if (fs.existsSync(PID_FILE)) {
       fs.unlinkSync(PID_FILE);
     }

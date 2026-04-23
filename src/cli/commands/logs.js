@@ -10,7 +10,7 @@ export async function logsCommand(args) {
 
   try {
     if (!fs.existsSync(LOG_DIR)) {
-      logger.logError('日志目录不存在');
+      logger.logError('Log directory does not exist');
       process.exit(1);
     }
 
@@ -30,15 +30,15 @@ export async function logsCommand(args) {
       .reverse();
 
     if (files.length === 0) {
-      logger.logError('没有找到日志文件');
+      logger.logError('No log files found');
       process.exit(1);
     }
 
     const logFile = path.join(LOG_DIR, files[0]);
 
     if (tail) {
-      console.log(`正在跟踪日志文件: ${logFile}`);
-      console.log('按 Ctrl+C 退出');
+      console.log(`Following log file: ${logFile}`);
+      console.log('Press Ctrl+C to exit');
       console.log('');
 
       const tailProcess = require('child_process').spawn('tail', ['-f', logFile], {
@@ -55,14 +55,14 @@ export async function logsCommand(args) {
       const logLines = content.split('\n').filter(line => line.trim());
       const displayLines = logLines.slice(-lines);
 
-      console.log(`显示最近 ${displayLines.length} 行日志:`);
-      console.log(`日志文件: ${logFile}`);
+      console.log(`Showing last ${displayLines.length} lines of logs:`);
+      console.log(`Log file: ${logFile}`);
       console.log('');
       console.log(displayLines.join('\n'));
     }
 
   } catch (err) {
-    logger.logError(`查看日志失败: ${err.message}`);
+    logger.logError(`Failed to view logs: ${err.message}`);
     process.exit(1);
   }
 }

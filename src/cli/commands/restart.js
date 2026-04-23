@@ -6,17 +6,17 @@ export async function restartCommand() {
   const logger = getLogger();
 
   try {
-    logger.logInfo('正在停止服务...');
+    logger.logInfo('Stopping service...');
     await stopCommand();
 
-    logger.logInfo('等待服务完全停止...');
+    logger.logInfo('Waiting for service to fully stop...');
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    logger.logInfo('正在启动服务...');
+    logger.logInfo('Starting service...');
     await startCommand();
 
   } catch (err) {
-    logger.logError(`重启服务失败: ${err.message}`);
+    logger.logError(`Failed to restart service: ${err.message}`);
     process.exit(1);
   }
 }
