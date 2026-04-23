@@ -10,13 +10,13 @@ const CONFIG_DIR = path.join(os.homedir(), '.claude-nvidia-proxy');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'setting.json');
 
 let config = {
-  addr: ':3001',
-  upstreamURL: '',
-  providerAPIKey: '',
-  serverAPIKey: '',
-  timeout: 5 * 60 * 1000,
-  logBodyMax: 4096,
-  logStreamPreviewMax: 256
+  PROXY_URL: 'localhost:8888',
+  API_BASE_URL: 'https://integrate.api.nvidia.com/v1/chat/completions',
+  NV_API_KEY: '',
+  SERVER_API_KEY: 'your-secret-key',
+  TIMEOUT: 300000,
+  LOG_BODY_MAX: 4096,
+  LOG_STREAM_PREVIEW_MAX: 256
 };
 
 function getConfigPath() {
@@ -40,50 +40,14 @@ function promptForConfig() {
       output: process.stdout
     });
 
+    // Only ask for NV_API_KEY, other parameters use default values
     const questions = [
       {
-        key: 'upstreamURL',
-        prompt: 'Enter NVIDIA API URL',
-        default: 'https://integrate.api.nvidia.com/v1/chat/completions',
-        required: true
-      },
-      {
-        key: 'providerAPIKey',
+        key: 'NV_API_KEY',
         prompt: 'Enter NVIDIA API Key',
         default: '',
         required: true,
         password: true
-      },
-      {
-        key: 'serverAPIKey',
-        prompt: 'Enter server authentication key (optional, press Enter to skip)',
-        default: '',
-        required: false,
-        password: true
-      },
-      {
-        key: 'addr',
-        prompt: 'Enter listen address',
-        default: 'localhost:8888',
-        required: false
-      },
-      {
-        key: 'timeout',
-        prompt: 'Enter timeout (seconds)',
-        default: '300',
-        required: false
-      },
-      {
-        key: 'logBodyMax',
-        prompt: 'Enter maximum log characters',
-        default: '4096',
-        required: false
-      },
-      {
-        key: 'logStreamPreviewMax',
-        prompt: 'Enter stream response preview characters',
-        default: '256',
-        required: false
       }
     ];
 
@@ -93,13 +57,22 @@ function promptForConfig() {
     function askNext() {
       if (currentQuestion >= questions.length) {
         rl.close();
-        resolve(answers);
+
+        // Set default values for other parameters
+        resolve({
+          ...answers,
+          PROXY_URL: 'localhost:8888',
+          API_BASE_URL: 'https://integrate.api.nvidia.com/v1/chat/completions',
+          SERVER_API_KEY: '',
+          TIMEOUT: 300000,
+          LOG_BODY_MAX: 4096,
+          LOG_STREAM_PREVIEW_MAX: 256
+        });
         return;
       }
 
       const q = questions[currentQuestion];
-      const defaultText = q.default ? ` [default: ${q.default}]` : '';
-      const promptText = `${q.prompt}${defaultText}: `;
+      const promptText = `${q.prompt}: `;
 
       rl.question(promptText, (answer) => {
         const value = answer.trim() || q.default;
@@ -110,18 +83,7 @@ function promptForConfig() {
           return;
         }
 
-        if (q.key === 'timeout' || q.key === 'logBodyMax' || q.key === 'logStreamPreviewMax') {
-          const num = parseInt(value, 10);
-          if (isNaN(num) || num <= 0) {
-            console.log('Please enter a valid number.');
-            askNext();
-            return;
-          }
-          answers[q.key] = num;
-        } else {
-          answers[q.key] = value;
-        }
-
+        answers[q.key] = value;
         currentQuestion++;
         askNext();
       });
@@ -149,50 +111,51 @@ function mergeConfig(jsonConfig) {
   const merged = { ...config };
 
   if (jsonConfig) {
-    if (jsonConfig.addr) merged.addr = jsonConfig.addr;
-    if (jsonConfig.upstreamURL) merged.upstreamURL = jsonConfig.upstreamURL;
-    if (jsonConfig.providerAPIKey) merged.providerAPIKey = jsonConfig.providerAPIKey;
-    if (jsonConfig.serverAPIKey !== undefined) merged.serverAPIKey = jsonConfig.serverAPIKey;
-    if (jsonConfig.timeout) merged.timeout = jsonConfig.timeout;
-    if (jsonConfig.logBodyMax !== undefined) merged.logBodyMax = jsonConfig.logBodyMax;
-    if (jsonConfig.logStreamPreviewMax !== undefined) merged.logStreamPreviewMax = jsonConfig.logStreamPreviewMax;
+    if (jsonConfig.PROXY_URL) merged.PROXY_URL = jsonConfig.PROXY_URL;
+    if (jsonConfig.API_BASE_URL) merged.API_BASE_URL = jsonConfig.API_BASE_URL;
+    if (jsonConfig.NV_API_KEY) merged.NV_API_KEY = jsonConfig.NV_API_KEY;
+    if (jsonConfig.SERVER_API_KEY !== undefined) merged.SERVER_API_KEY = jsonConfig.SERVER_API_KEY;
+    if (jsonConfig.TIMEOUT) merged.TIMEOUT = jsonConfig.TIMEOUT;
+    if (jsonConfig.LOG_BODY_MAX !== undefined) merged.LOG_BODY_MAX = jsonConfig.LOG_BODY_MAX;
+    if (jsonConfig.LOG_STREAM_PREVIEW_MAX !== undefined) merged.LOG_STREAM_PREVIEW_MAX = jsonConfig.LOG_STREAM_PREVIEW_MAX;
   }
 
-  const timeoutStr = (process.env.UPSTREAM_TIMEOUT_SECONDS || '').trim();
+  // Update environment variable name mappings
+  const timeoutStr = (process.env.TIMEOUT || '').trim();
   if (timeoutStr) {
-    const seconds = parseInt(timeoutStr, 10);
-    if (!isNaN(seconds) && seconds > 0) {
-      merged.timeout = seconds * 1000;
+    const timeout = parseInt(timeoutStr, 10);
+    if (!isNaN(timeout) && timeout > 0) {
+      merged.TIMEOUT = timeout;
     }
   }
 
-  const logBodyMaxStr = (process.env.LOG_BODY_MAX_CHARS || '').trim();
+  const logBodyMaxStr = (process.env.LOG_BODY_MAX || '').trim();
   if (logBodyMaxStr) {
     const logBodyMax = parseInt(logBodyMaxStr, 10);
     if (!isNaN(logBodyMax) && logBodyMax >= 0) {
-      merged.logBodyMax = logBodyMax;
+      merged.LOG_BODY_MAX = logBodyMax;
     }
   }
 
-  const logStreamPreviewMaxStr = (process.env.LOG_STREAM_TEXT_PREVIEW_CHARS || '').trim();
+  const logStreamPreviewMaxStr = (process.env.LOG_STREAM_PREVIEW_MAX || '').trim();
   if (logStreamPreviewMaxStr) {
     const logStreamPreviewMax = parseInt(logStreamPreviewMaxStr, 10);
     if (!isNaN(logStreamPreviewMax) && logStreamPreviewMax >= 0) {
-      merged.logStreamPreviewMax = logStreamPreviewMax;
+      merged.LOG_STREAM_PREVIEW_MAX = logStreamPreviewMax;
     }
   }
 
-  if (process.env.UPSTREAM_URL) {
-    merged.upstreamURL = process.env.UPSTREAM_URL.trim();
+  if (process.env.API_BASE_URL) {
+    merged.API_BASE_URL = process.env.API_BASE_URL.trim();
   }
-  if (process.env.PROVIDER_API_KEY) {
-    merged.providerAPIKey = process.env.PROVIDER_API_KEY.trim();
+  if (process.env.NV_API_KEY) {
+    merged.NV_API_KEY = process.env.NV_API_KEY.trim();
   }
   if (process.env.SERVER_API_KEY) {
-    merged.serverAPIKey = process.env.SERVER_API_KEY.trim();
+    merged.SERVER_API_KEY = process.env.SERVER_API_KEY.trim();
   }
-  if (process.env.ADDR) {
-    merged.addr = process.env.ADDR.trim();
+  if (process.env.PROXY_URL) {
+    merged.PROXY_URL = process.env.PROXY_URL.trim();
   }
 
   return merged;
@@ -219,11 +182,11 @@ function loadConfig() {
   const jsonConfig = ensureConfig();
   config = mergeConfig(jsonConfig);
 
-  if (!config.upstreamURL) {
-    throw new Error('missing UPSTREAM_URL in config or environment');
+  if (!config.API_BASE_URL) {
+    throw new Error('missing API_BASE_URL in config or environment');
   }
-  if (!config.providerAPIKey) {
-    throw new Error('missing PROVIDER_API_KEY in config or environment');
+  if (!config.NV_API_KEY) {
+    throw new Error('missing NV_API_KEY in config or environment');
   }
 
   return config;

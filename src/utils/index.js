@@ -118,24 +118,24 @@ function logForwardedRequest(reqID, cfg, anthropicReq, openaiReq) {
     messages: anthropicReq.messages?.length || 0,
     tools: anthropicReq.tools?.length || 0
   };
-  logger.logInfo(`[${reqID}] inbound summary=${mustJSONTrunc(inSummary, cfg.logBodyMax)}`);
+  logger.logInfo(`[${reqID}] inbound summary=${mustJSONTrunc(inSummary, cfg.LOG_BODY_MAX)}`);
 
   const out = sanitizeOpenAIRequest(openaiReq);
-  logger.logInfo(`[${reqID}] forward url=${cfg.upstreamURL}`);
+  logger.logInfo(`[${reqID}] forward url=${cfg.API_BASE_URL}`);
   logger.logInfo(`[${reqID}] forward headers=${mustJSONTrunc({
     'Content-Type': 'application/json',
     'Authorization': 'Bearer <redacted>'
-  }, cfg.logBodyMax)}`);
-  logger.logInfo(`[${reqID}] forward body=${mustJSONTrunc(out, cfg.logBodyMax)}`);
+  }, cfg.LOG_BODY_MAX)}`);
+  logger.logInfo(`[${reqID}] forward body=${mustJSONTrunc(out, cfg.LOG_BODY_MAX)}`);
 }
 
 function logForwardedUpstreamBody(reqID, cfg, body) {
   const logger = getLogger();
-  if (cfg.logBodyMax === 0) return;
+  if (cfg.LOG_BODY_MAX === 0) return;
 
   let s = typeof body === 'string' ? body : body.toString();
-  if (s.length > cfg.logBodyMax) {
-    s = s.substring(0, cfg.logBodyMax) + '...(truncated)';
+  if (s.length > cfg.LOG_BODY_MAX) {
+    s = s.substring(0, cfg.LOG_BODY_MAX) + '...(truncated)';
   }
   logger.logInfo(`[${reqID}] upstream body=${s}`);
 }

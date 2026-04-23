@@ -12,15 +12,15 @@ function main() {
   const cfg = getConfig();
   const server = createServer(cfg);
 
-  console.log(`listening on ${cfg.addr}`);
-  console.log(`upstream: ${cfg.upstreamURL}`);
-  if (cfg.serverAPIKey) {
+  console.log(`listening on ${cfg.PROXY_URL}`);
+  console.log(`upstream: ${cfg.API_BASE_URL}`);
+  if (cfg.SERVER_API_KEY) {
     console.log('inbound auth: enabled');
   } else {
     console.log('inbound auth: disabled (SERVER_API_KEY not set)');
   }
 
-  const [host, port] = cfg.addr.split(':');
+  const [host, port] = cfg.PROXY_URL.split(':');
   server.listen(parseInt(port), host);
 }
 

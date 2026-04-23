@@ -1,9 +1,0 @@
-{
-  "addr": "localhost:8888",
-  "upstreamURL": "https://integrate.api.nvidia.com/v1/chat/completions",
-  "providerAPIKey": "your-nvidia-api-key",
-  "serverAPIKey": "your-secret-key",
-  "timeout": 300000,
-  "logBodyMax": 4096,
-  "logStreamPreviewMax": 256
-}

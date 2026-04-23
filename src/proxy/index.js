@@ -8,7 +8,7 @@ import { getLogger } from '../logger/index.js';
 function doUpstreamJSON(ctx, cfg, openaiReq) {
   return new Promise((resolve, reject) => {
     const bodyBytes = JSON.stringify(openaiReq);
-    const url = new URL(cfg.upstreamURL);
+    const url = new URL(cfg.API_BASE_URL);
 
     const options = {
       hostname: url.hostname,
@@ -17,10 +17,10 @@ function doUpstreamJSON(ctx, cfg, openaiReq) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cfg.providerAPIKey}`,
+        'Authorization': `Bearer ${cfg.NV_API_KEY}`,
         'Content-Length': Buffer.byteLength(bodyBytes)
       },
-      timeout: cfg.timeout
+      timeout: cfg.TIMEOUT
     };
 
     const protocol = url.protocol === 'https:' ? https : http;
@@ -50,7 +50,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
   openaiReq.stream = true;
 
   const bodyBytes = JSON.stringify(openaiReq);
-  const url = new URL(cfg.upstreamURL);
+  const url = new URL(cfg.API_BASE_URL);
 
   const options = {
     hostname: url.hostname,
@@ -59,7 +59,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${cfg.providerAPIKey}`,
+      'Authorization': `Bearer ${cfg.NV_API_KEY}`,
       'Content-Length': Buffer.byteLength(bodyBytes)
     }
   };
@@ -170,8 +170,8 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
 
             if (delta.content !== undefined && delta.content !== null && delta.content !== "") {
               textChars += delta.content.length;
-              if (cfg.logStreamPreviewMax > 0 && preview.length < cfg.logStreamPreviewMax) {
-                preview += delta.content.substring(0, cfg.logStreamPreviewMax - preview.length);
+              if (cfg.LOG_STREAM_PREVIEW_MAX > 0 && preview.length < cfg.LOG_STREAM_PREVIEW_MAX) {
+                preview += delta.content.substring(0, cfg.LOG_STREAM_PREVIEW_MAX - preview.length);
               }
 
               if (currentBlockType !== 'text') {
@@ -289,7 +289,7 @@ async function proxyStream(res, req, cfg, reqID, openaiReq) {
 
         encoder('message_stop', { type: 'message_stop' });
 
-        if (cfg.logStreamPreviewMax > 0) {
+        if (cfg.LOG_STREAM_PREVIEW_MAX > 0) {
           logger.logInfo(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone} preview="${preview}"`);
         } else {
           logger.logInfo(`[${reqID}] stream summary chunks=${chunkCount} text_chars=${textChars} tool_delta_chunks=${toolDeltaChunks} tool_args_chars=${toolArgsChars} finish_reason="${finishReason}" saw_done=${sawDone}`);
