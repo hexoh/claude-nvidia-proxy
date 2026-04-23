@@ -1,6 +1,6 @@
 {
   "name": "claude-nvidia-proxy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A proxy server that converts Anthropic API requests to NVIDIA API format",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

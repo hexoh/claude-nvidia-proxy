@@ -1,39 +1,21 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 1.1.0 (2026-04-23)
 
-## [Unreleased]
 
-### Added
-- Initial release of claude-nvidia-proxy
-- Support for Anthropic to NVIDIA API conversion
-- Streaming and non-streaming response support
-- Tool calls support
-- Image input support
-- Token usage statistics
-- Basic authentication mechanism
-- Docker support
-- npm package distribution
+### Features
 
-### Changed
-- N/A
+* add interactive configuration and logging features ([76b8014](https://github.com/hexoh/claude-nvidia-proxy/commit/76b80140b7f3e0d2d6832449fd5803e2593e8f98))
+* remove SECURITY.md and add new CONTRIBUTING.md and SECURITY.md files ([9ccbde5](https://github.com/hexoh/claude-nvidia-proxy/commit/9ccbde59c101515644943fc2efaca392289cce84))
+* update README and README.zh.md for improved clarity and structure; add quick start guide and configuration instructions ([9822c20](https://github.com/hexoh/claude-nvidia-proxy/commit/9822c204b74a1387a508b97d5d717c77c8f011d3))
 
-### Deprecated
-- N/A
 
-### Removed
-- N/A
+### Bug Fixes
 
-### Fixed
-- Fixed usage field in message_start event
-- Fixed streaming response handling
-- Fixed port binding issues
-
-### Security
-- N/A
+* add .github config ([b42e6ca](https://github.com/hexoh/claude-nvidia-proxy/commit/b42e6ca42c4425039023164da9db5edb854de03d))
+* fix .github npm run error ([6dd2526](https://github.com/hexoh/claude-nvidia-proxy/commit/6dd2526ad270f4a76204c2ffe8c3957c02e69cec))
 
 ## [1.0.0] - 2024-04-22
 
