@@ -96,7 +96,7 @@ function promptForConfig() {
           ...answers,
           PROXY_URL: 'localhost:8888',
           API_BASE_URL: 'https://integrate.api.nvidia.com/v1/chat/completions',
-          SERVER_API_KEY: '',
+          SERVER_API_KEY: 'your-secret-key',
           TIMEOUT: 300000,
           LOG_BODY_MAX: 4096,
           LOG_STREAM_PREVIEW_MAX: 256

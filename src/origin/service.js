@@ -998,11 +998,6 @@ function main() {
 
   console.log(`listening on ${config.addr}`);
   console.log(`upstream: ${config.upstreamURL}`);
-  if (config.serverAPIKey) {
-    console.log('inbound auth: enabled');
-  } else {
-    console.log('inbound auth: disabled (SERVER_API_KEY not set)');
-  }
 
   const [host, port] = config.addr.split(':');
   server.listen(parseInt(port), host);

@@ -69,11 +69,6 @@ export async function startCommand() {
 
     logger.logInfo(`listening on ${cfg.PROXY_URL}`);
     logger.logInfo(`upstream: ${cfg.API_BASE_URL}`);
-    if (cfg.SERVER_API_KEY) {
-      logger.logInfo('inbound auth: enabled');
-    } else {
-      logger.logInfo('inbound auth: disabled (SERVER_API_KEY not set)');
-    }
 
     server.listen(parseInt(port), host);
 
