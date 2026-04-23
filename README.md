@@ -32,10 +32,26 @@ English | [中文](README.zh.md) | [Changelog](CHANGELOG.md)
 
 ## Installation
 
-### As npm package
+### As npm package (recommended)
 
 ```bash
 npm install -g claude-nvidia-proxy
+```
+
+### From GitHub Release
+
+* Download the release from [GitHub Releases](https://github.com/hexoh/claude-nvidia-proxy/releases)
+* Extract the file
+* Run:
+
+```bash
+# If using dist folder
+node dist/cli/index.js start
+
+# If using source, first build
+npm install
+npm run build
+node dist/cli/index.js start
 ```
 
 ## Usage

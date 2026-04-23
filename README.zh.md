@@ -32,10 +32,26 @@
 
 ## 安装
 
-### 作为 npm 包
+### 作为 npm 包（推荐）
 
 ```bash
 npm install -g claude-nvidia-proxy
+```
+
+### 从 GitHub Release 下载
+
+* 从 [GitHub Releases](https://github.com/hexoh/claude-nvidia-proxy/releases) 下载
+* 解压文件
+* 运行：
+
+```bash
+# 如果使用 dist 文件夹
+node dist/cli/index.js start
+
+# 如果使用源码，先构建
+npm install
+npm run build
+node dist/cli/index.js start
 ```
 
 ## 快速开始
