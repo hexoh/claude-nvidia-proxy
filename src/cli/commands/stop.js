@@ -5,6 +5,9 @@ import { getLogger } from '../../logger/index.js';
 
 const PID_DIR = path.join(os.homedir(), '.claude-nvidia-proxy');
 const PID_FILE = path.join(PID_DIR, 'proxy.pid');
+const CLAUDE_DIR = path.join(os.homedir(), '.claude');
+const CLAUDE_SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
+const CLAUDE_BACKUP_FILE = path.join(CLAUDE_DIR, 'settings.json.claude-nvidia-proxy.bak');
 
 export async function stopCommand() {
   const logger = getLogger();
@@ -45,6 +48,13 @@ export async function stopCommand() {
       const stopped = await checkStopped();
       if (stopped) {
         fs.unlinkSync(PID_FILE);
+        
+        if (fs.existsSync(CLAUDE_BACKUP_FILE)) {
+          fs.copyFileSync(CLAUDE_BACKUP_FILE, CLAUDE_SETTINGS_FILE);
+          fs.unlinkSync(CLAUDE_BACKUP_FILE);
+          logger.logInfo('Original Claude settings restored');
+        }
+        
         logger.logInfo('Service stopped');
         process.exit(0);
       }
@@ -55,6 +65,13 @@ export async function stopCommand() {
     logger.logError('Timeout stopping service, attempting force kill');
     process.kill(pid, 'SIGKILL');
     fs.unlinkSync(PID_FILE);
+    
+    if (fs.existsSync(CLAUDE_BACKUP_FILE)) {
+      fs.copyFileSync(CLAUDE_BACKUP_FILE, CLAUDE_SETTINGS_FILE);
+      fs.unlinkSync(CLAUDE_BACKUP_FILE);
+      logger.logInfo('Original Claude settings restored');
+    }
+    
     logger.logInfo('Service force stopped');
     process.exit(0);
 

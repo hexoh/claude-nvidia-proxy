@@ -9,7 +9,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "node build.js",
+    "build": "node script/build.js",
     "start": "node dist/cli/index.js start",
     "dev": "node src/cli/index.js start",
     "serve": "node src/cli/index.js start",
@@ -41,16 +41,16 @@
   "files": [
     "src",
     "dist",
-    "build.js",
+    "script/build.js",
     "examples",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
-    "dotenv": "^17.4.2",
     "openai": "^6.34.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.28.0"
   }
 }

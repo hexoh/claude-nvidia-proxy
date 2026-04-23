@@ -1,13 +1,12 @@
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import readline from 'readline';
 
-dotenv.config();
-
 const CONFIG_DIR = path.join(os.homedir(), '.claude-nvidia-proxy');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'setting.json');
+const CONFIG_FILE = path.join(CONFIG_DIR, 'settings.json');
+const MODELS_FILE = path.join(CONFIG_DIR, 'models.json');
+const DEFAULT_MODELS_FILE = path.join(process.cwd(), 'config', 'models.json');
 
 let config = {
   PROXY_URL: 'localhost:8888',
@@ -31,6 +30,40 @@ function createConfigDir() {
   if (!fs.existsSync(CONFIG_DIR)) {
     fs.mkdirSync(CONFIG_DIR, { recursive: true });
   }
+  ensureModelsFile();
+}
+
+function getModelsPath() {
+  return MODELS_FILE;
+}
+
+function ensureModelsFile() {
+  if (!fs.existsSync(MODELS_FILE)) {
+    if (fs.existsSync(DEFAULT_MODELS_FILE)) {
+      fs.copyFileSync(DEFAULT_MODELS_FILE, MODELS_FILE);
+    } else {
+      fs.writeFileSync(MODELS_FILE, JSON.stringify([
+        "z-ai/glm4.7",
+        "minimaxai/minimax-m2.7"
+      ], null, 2), 'utf-8');
+    }
+  }
+}
+
+function readModelsFile() {
+  ensureModelsFile();
+  const content = fs.readFileSync(MODELS_FILE, 'utf-8');
+  return JSON.parse(content);
+}
+
+function writeModelsFile(models) {
+  ensureModelsFile();
+  fs.writeFileSync(MODELS_FILE, JSON.stringify(models, null, 2), 'utf-8');
+}
+
+function modelExists(modelName) {
+  const models = readModelsFile();
+  return models.includes(modelName);
 }
 
 function promptForConfig() {
@@ -206,5 +239,10 @@ export {
   writeConfigFile,
   readConfigFile,
   mergeConfig,
-  ensureConfig
+  ensureConfig,
+  getModelsPath,
+  ensureModelsFile,
+  readModelsFile,
+  writeModelsFile,
+  modelExists
 };

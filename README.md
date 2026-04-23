@@ -37,7 +37,7 @@ npm install
 cnp config
 ```
 
-这将启动交互式配置向导，引导你设置必要的配置项。配置文件将保存在 `~/.claude-nvidia-proxy/setting.json`。
+ 这将启动交互式配置向导，引导你设置必要的配置项。配置文件将保存在 `~/.claude-nvidia-proxy/settings.json`。
 
 ### 2. 启动服务
 
@@ -57,20 +57,26 @@ cnp restart
 # 查看服务状态
 cnp status
 
-# 查看日志
-cnp logs
+ # 查看日志
+ cnp logs
 
-# 实时跟踪日志
-cnp logs --tail
+ # 实时跟踪日志
+ cnp logs --tail
 
-# 查看最近 100 行日志
-cnp logs --lines=100
+ # 查看最近 100 行日志
+ cnp logs --lines=100
 
-# 只查看错误日志
-cnp logs --error
+ # 只查看错误日志
+ cnp logs --error
 
-# 只查看访问日志
-cnp logs --access
+ # 只查看访问日志
+ cnp logs --access
+
+ # 模型管理
+ cnp model list
+ cnp model add z-ai/glm4.7
+ cnp model rm z-ai/glm4.7
+ cnp model setup
 ```
 
 ### 4. 作为 npm 包在代码中使用
@@ -96,19 +102,19 @@ cnp start
 
 ### 配置文件
 
-配置文件位置：`~/.claude-nvidia-proxy/setting.json`
+配置文件位置：`~/.claude-nvidia-proxy/settings.json`
 
 配置文件格式：
 
 ```json
 {
-  "addr": "localhost:8888",
-  "upstreamURL": "https://integrate.api.nvidia.com/v1/chat/completions",
-  "providerAPIKey": "your-nvidia-api-key",
-  "serverAPIKey": "your-secret-key",
-  "timeout": 300000,
-  "logBodyMax": 4096,
-  "logStreamPreviewMax": 256
+  "PROXY_URL": "localhost:8888",
+  "API_BASE_URL": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "NV_API_KEY": "your-nvidia-api-key",
+  "SERVER_API_KEY": "your-secret-key",
+  "TIMEOUT": 300000,
+  "LOG_BODY_MAX": 4096,
+  "LOG_STREAM_PREVIEW_MAX": 256
 }
 ```
 
@@ -116,13 +122,13 @@ cnp start
 
 | 配置项 | 说明 | 默认值 |
 |--------|------|--------|
-| `addr` | 服务器监听地址 | `localhost:8888` |
-| `upstreamURL` | NVIDIA API 地址 | 必填 |
-| `providerAPIKey` | NVIDIA API 密钥 | 必填 |
-| `serverAPIKey` | 服务器认证密钥 | 可选 |
-| `timeout` | 上游请求超时时间（毫秒） | `300000` |
-| `logBodyMax` | 日志最大字符数 | `4096` |
-| `logStreamPreviewMax` | 流式响应预览字符数 | `256` |
+| `PROXY_URL` | 服务器监听地址 | `localhost:8888` |
+| `API_BASE_URL` | NVIDIA API 地址 | 必填 |
+| `NV_API_KEY` | NVIDIA API 密钥 | 必填 |
+| `SERVER_API_KEY` | 服务器认证密钥 | 可选 |
+| `TIMEOUT` | 上游请求超时时间（毫秒） | `300000` |
+| `LOG_BODY_MAX` | 日志最大字符数 | `4096` |
+| `LOG_STREAM_PREVIEW_MAX` | 流式响应预览字符数 | `256` |
 
 ### 环境变量
 
@@ -130,13 +136,13 @@ cnp start
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
-| `ADDR` | 服务器监听地址 | 配置文件中的值 |
-| `UPSTREAM_URL` | NVIDIA API 地址 | 配置文件中的值 |
-| `PROVIDER_API_KEY` | NVIDIA API 密钥 | 配置文件中的值 |
+| `PROXY_URL` | 服务器监听地址 | 配置文件中的值 |
+| `API_BASE_URL` | NVIDIA API 地址 | 配置文件中的值 |
+| `NV_API_KEY` | NVIDIA API 密钥 | 配置文件中的值 |
 | `SERVER_API_KEY` | 服务器认证密钥 | 配置文件中的值 |
-| `UPSTREAM_TIMEOUT_SECONDS` | 上游请求超时时间（秒） | 配置文件中的值 |
-| `LOG_BODY_MAX_CHARS` | 日志最大字符数 | 配置文件中的值 |
-| `LOG_STREAM_TEXT_PREVIEW_CHARS` | 流式响应预览字符数 | 配置文件中的值 |
+| `TIMEOUT` | 上游请求超时时间（毫秒） | 配置文件中的值 |
+| `LOG_BODY_MAX` | 日志最大字符数 | 配置文件中的值 |
+| `LOG_STREAM_PREVIEW_MAX` | 流式响应预览字符数 | 配置文件中的值 |
 
 ### 日志系统
 
@@ -178,21 +184,87 @@ curl -X POST http://localhost:3000/v1/messages \
 
 ## Claude Code 配置
 
-在 Claude Code 中配置使用此代理：
+### 使用 model setup 命令
+
+推荐使用 `model setup` 命令自动配置 Claude Code：
+
+```bash
+cnp model setup
+```
+
+该命令会：
+1. 读取可用的模型列表（从 `~/.claude-nvidia-proxy/models.json`）
+2. 引导你选择三个模型（HAIKU、SONNET、OPUS）
+3. 自动生成 Claude Code 配置文件
+4. 备份原有的 Claude Code 配置（如果存在）
+5. 安装新的配置到 `~/.claude/settings.json`
+6. 自动启动或重启代理服务
+7. 显示模型配置映射关系
+8. 提示你重启 Claude Code 使配置生效
+
+### 模型管理
+
+在使用 `model setup` 之前，你需要先管理可用的模型列表：
+
+```bash
+# 查看可用模型列表
+cnp model list
+
+# 添加新模型
+cnp model add z-ai/glm4.7
+
+# 移除模型（按名称）
+cnp model rm z-ai/glm4.7
+
+# 移除模型（按索引）
+cnp model rm 1
+```
+
+**注意事项：**
+- 添加模型时，如果模型已存在，会提示"模型已存在"
+- 删除模型时，如果只剩一个模型，会提示"不能删除最后一个模型"
+- 可以使用模型名称或索引来删除模型
+
+### 手动配置
+
+如果你想手动配置，可以创建 `~/.claude/settings.json` 文件：
 
 ```json
 {
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "your-secret-key",
-    "ANTHROPIC_BASE_URL": "http://localhost:3000",
-    "API_TIMEOUT_MS": "3000000",
+    "ANTHROPIC_BASE_URL": "http://localhost:8888",
+    "API_TIMEOUT_MS": "300000",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "meta/llama-3.1-8b-instruct",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "meta/llama-3.1-70b-instruct",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "meta/llama-3.1-405b-instruct"
-  }
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "z-ai/glm4.7",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "z-ai/glm4.7",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "z-ai/glm4.7"
+  },
+  "includeCoAuthoredBy": false
 }
 ```
+
+配置说明：
+- `ANTHROPIC_AUTH_TOKEN`: 使用你配置文件中的 `SERVER_API_KEY` 值
+- `ANTHROPIC_BASE_URL`: 使用你配置文件中的 `PROXY_URL` 值（需要包含 `http://` 或 `https://`）
+- `API_TIMEOUT_MS`: 使用你配置文件中的 `TIMEOUT` 值（毫秒）
+- `ANTHROPIC_DEFAULT_HAIKU_MODEL`: 从 `models.json` 中选择的模型
+- `ANTHROPIC_DEFAULT_SONNET_MODEL`: 从 `models.json` 中选择的模型
+- `ANTHROPIC_DEFAULT_OPUS_MODEL`: 从 `models.json` 中选择的模型
+
+### 模型配置
+
+可用模型列表存储在 `~/.claude-nvidia-proxy/models.json` 中，首次运行时会自动从 `config/models.json` 复制。
+
+默认模型列表：
+```json
+[
+  "z-ai/glm4.7",
+  "minimaxai/minimax-m2.7"
+]
+```
+
+你可以使用 `cnp model add` 和 `cnp model rm` 命令来管理可用模型。
 
 ## 项目结构
 
@@ -207,7 +279,8 @@ claude-nvidia-proxy/
 │   │       ├── restart.js        # 重启命令
 │   │       ├── config.js         # 配置命令
 │   │       ├── status.js         # 状态命令
-│   │       └── logs.js           # 日志命令
+│   │       ├── logs.js           # 日志命令
+│   │       └── model.js          # 模型管理命令
 │   ├── config/
 │   │   └── index.js              # 配置管理
 │   ├── logger/
@@ -221,7 +294,9 @@ claude-nvidia-proxy/
 │   ├── utils/
 │   │   └── index.js              # 工具函数
 │   └── index.js                  # 主入口
-├── config.example.json           # 配置示例
+├── config/
+│   ├── models.json               # 默认模型列表
+│   └── settings.example.json     # 配置示例
 ├── dist/                         # 构建输出
 ├── examples/                     # 示例代码
 ├── build.js                      # 构建脚本
@@ -237,12 +312,18 @@ claude-nvidia-proxy/
 
 ```
 ~/.claude-nvidia-proxy/
-├── setting.json                  # 配置文件
-├── proxy.pid                     # PID 文件
-└── logs/                         # 日志目录
+├── settings.json                  # 配置文件
+├── models.json                    # 可用模型列表
+├── claude.settings.json           # Claude Code 配置
+├── proxy.pid                      # PID 文件
+└── logs/                          # 日志目录
     ├── proxy-YYYY-MM-DD.log
     ├── error-YYYY-MM-DD.log
     └── access-YYYY-MM-DD.log
+
+~/.claude/
+├── settings.json                  # Claude Code 配置（由 model setup 管理）
+└── settings.json.claude-nvidia-proxy.bak  # 原始配置备份
 ```
 
 ## 开发
@@ -308,12 +389,27 @@ cnp logs --error
 
 1. 删除配置文件：
    ```bash
-   rm ~/.claude-nvidia-proxy/setting.json
+   rm ~/.claude-nvidia-proxy/settings.json
    ```
 
 2. 重新运行配置命令：
    ```bash
    cnp config
+   ```
+
+### 重置 Claude Code 配置
+
+如果需要重置 Claude Code 配置：
+
+1. 停止服务（会自动还原原始配置）：
+   ```bash
+   cnp stop
+   ```
+
+2. 或者手动删除备份文件后重新配置：
+   ```bash
+   rm ~/.claude/settings.json.claude-nvidia-proxy.bak
+   cnp model setup
    ```
 
 ## 许可证

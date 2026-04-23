@@ -5,6 +5,14 @@ import { restartCommand } from './commands/restart.js';
 import { configCommand } from './commands/config.js';
 import { statusCommand } from './commands/status.js';
 import { logsCommand } from './commands/logs.js';
+import { 
+  modelListCommand, 
+  modelAddCommand, 
+  modelRmCommand, 
+  modelSetupCommand, 
+  modelHelpCommand 
+} from './commands/model.js';
+import { testCommand, testHelpCommand } from './commands/test.js';
 import { getLogger } from '../logger/index.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -27,12 +35,14 @@ async function main() {
     console.log('Usage: cnp <command> [options]');
     console.log('');
     console.log('Commands:');
-    console.log('  start    Start the service');
-    console.log('  stop     Stop the service');
-    console.log('  restart  Restart the service');
-    console.log('  config   Interactive configuration');
-    console.log('  status   View service status');
-    console.log('  logs     View logs');
+    console.log('  start         Start the service');
+    console.log('  stop          Stop the service');
+    console.log('  restart       Restart the service');
+    console.log('  config        Interactive configuration');
+    console.log('  status        View service status');
+    console.log('  logs          View logs');
+    console.log('  model         Model management');
+    console.log('  test         Test a model');
     console.log('');
     console.log('Options:');
     console.log('  --help, -h       Show help information');
@@ -44,10 +54,19 @@ async function main() {
     console.log('  --error, -e       Show only error logs');
     console.log('  --access, -a      Show only access logs');
     console.log('');
+    console.log('Model command options:');
+    console.log('  list             List available models');
+    console.log('  add <model>      Add a new model');
+    console.log('  rm <model>       Remove a model');
+    console.log('  setup            Setup Claude Code model configuration');
+    console.log('');
     console.log('Examples:');
     console.log('  cnp start');
     console.log('  cnp logs --tail');
     console.log('  cnp logs --lines=100 --error');
+    console.log('  cnp model list');
+    console.log('  cnp model add z-ai/glm4.7');
+    console.log('  cnp model setup');
     process.exit(0);
   }
 
@@ -75,18 +94,47 @@ async function main() {
     case 'logs':
       await logsCommand(args);
       break;
+    case 'model':
+      const subCommand = args[0];
+      const subArgs = args.slice(1);
+      
+      if (!subCommand || subCommand === '--help' || subCommand === '-h') {
+        await modelHelpCommand();
+        process.exit(0);
+      }
+      
+      switch (subCommand) {
+        case 'list':
+          await modelListCommand();
+          break;
+        case 'add':
+          await modelAddCommand(subArgs[0]);
+          break;
+        case 'rm':
+          await modelRmCommand(subArgs[0]);
+          break;
+        case 'setup':
+          await modelSetupCommand();
+          break;
+        default:
+          console.log(`Unknown model command: ${subCommand}`);
+          console.log('Run "cnp model --help" for available commands');
+          process.exit(1);
+      }
+      break;
     default:
       console.log('Claude NVIDIA Proxy - CLI Tool');
       console.log('');
       console.log('Usage: cnp <command> [options]');
       console.log('');
       console.log('Commands:');
-      console.log('  start    Start the service');
-      console.log('  stop     Stop the service');
-      console.log('  restart  Restart the service');
-      console.log('  config   Interactive configuration');
-      console.log('  status   View service status');
-      console.log('  logs     View logs');
+      console.log('  start         Start the service');
+      console.log('  stop          Stop the service');
+      console.log('  restart       Restart the service');
+      console.log('  config        Interactive configuration');
+      console.log('  status        View service status');
+      console.log('  logs          View logs');
+      console.log('  model         Model management');
       console.log('');
       console.log('Options:');
       console.log('  --help, -h       Show help information');
@@ -98,10 +146,19 @@ async function main() {
       console.log('  --error, -e       Show only error logs');
       console.log('  --access, -a      Show only access logs');
       console.log('');
+      console.log('Model command options:');
+      console.log('  list             List available models');
+      console.log('  add <model>      Add a new model');
+      console.log('  rm <model>       Remove a model');
+      console.log('  setup            Setup Claude Code model configuration');
+      console.log('');
       console.log('Examples:');
       console.log('  cnp start');
       console.log('  cnp logs --tail');
       console.log('  cnp logs --lines=100 --error');
+      console.log('  cnp model list');
+      console.log('  cnp model add z-ai/glm4.7');
+      console.log('  cnp model setup');
       process.exit(0);
   }
 }

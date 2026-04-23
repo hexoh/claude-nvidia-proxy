@@ -1,23 +1,49 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as esbuild from 'esbuild';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
 
 // Create dist directory
-const distDir = path.join(__dirname, 'dist');
+const distDir = path.join(rootDir, 'dist');
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir, { recursive: true });
 }
 
-// Copy all files and directories from src to dist
+// Build test file with esbuild (bundle openai)
+const srcDir = path.join(rootDir, 'src');
+
+// Files that need bundling (with external dependencies)
+const filesToBundle = [
+  { entry: path.join(srcDir, 'test', 'test-nvidia.js'), out: path.join(distDir, 'test', 'test-nvidia.js') },
+];
+
+for (const file of filesToBundle) {
+  const outDir = path.dirname(file.out);
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true });
+  }
+  await esbuild.build({
+    entryPoints: [file.entry],
+    bundle: true,
+    outfile: file.out,
+    platform: 'node',
+    format: 'esm',
+    external: [],
+    logLevel: 'info',
+  });
+  console.log(`Bundled: ${path.relative(rootDir, file.out)}`);
+}
+
+// Copy other files from src to dist (skip test - it's bundled)
 function copyDir(src, dest) {
   const entries = fs.readdirSync(src, { withFileTypes: true });
 
   for (const entry of entries) {
-    // Skip test and origin directories
-    if (entry.name === 'test' || entry.name === 'origin') {
+    if (entry.name === 'test') {
       continue;
     }
 
@@ -33,7 +59,6 @@ function copyDir(src, dest) {
   }
 }
 
-const srcDir = path.join(__dirname, 'src');
 copyDir(srcDir, distDir);
 
 // Make CLI executable

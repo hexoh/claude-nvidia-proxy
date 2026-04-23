@@ -2,10 +2,6 @@ import http from 'http';
 import https from 'https';
 import fs from 'fs';
 import { URL } from 'url';
-import dotenv from 'dotenv';
-
-// Load .env file
-dotenv.config();
 
 // Configuration
 let config = {
