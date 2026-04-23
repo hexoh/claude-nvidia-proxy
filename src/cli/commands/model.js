@@ -257,12 +257,12 @@ export async function modelSetupCommand() {
     }
 
     console.log('\n========================================');
-    console.log('模型配置完成：');
-    console.log(`  ANTHROPIC_DEFAULT_HAIKU_MODEL  → ${haikuModel}`);
-    console.log(`  ANTHROPIC_DEFAULT_SONNET_MODEL → ${sonnetModel}`);
-    console.log(`  ANTHROPIC_DEFAULT_OPUS_MODEL    → ${opusModel}`);
+    console.log('Model configuration complete:');
+    console.log(`  ANTHROPIC_DEFAULT_HAIKU_MODEL  -> ${haikuModel}`);
+    console.log(`  ANTHROPIC_DEFAULT_SONNET_MODEL -> ${sonnetModel}`);
+    console.log(`  ANTHROPIC_DEFAULT_OPUS_MODEL    -> ${opusModel}`);
     console.log('========================================');
-    console.log('请启动或重启 Claude Code 使配置生效。');
+    console.log('Please start or restart Claude Code to apply the configuration.');
     console.log('========================================\n');
 
     process.exit(0);

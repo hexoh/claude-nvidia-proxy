@@ -2,19 +2,22 @@
 
 # Claude-NVIDIA-Proxy
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/claude-nvidia-proxy">
-    <img src="https://img.shields.io/npm/v/claude-nvidia-proxy.svg" alt="npm version">
-  </a>
-  <a href="https://nodejs.org">
-    <img src="https://img.shields.io/node/v/claude-nvidia-proxy.svg" alt="node version">
-  </a>
-  <a href="https://github.com/hexoh/claude-nvidia-proxy/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/hexoh/claude-nvidia-proxy.svg" alt="license">
-  </a>
-</p>
+<a href="https://www.npmjs.com/package/claude-nvidia-proxy">
+   <img src="https://img.shields.io/npm/v/claude-nvidia-proxy.svg" alt="npm version">
+</a>
+<a href="https://github.com/hexoh/claude-nvidia-proxy/releases">
+   <img src="https://img.shields.io/github/v/release/hexoh/claude-nvidia-proxy.svg" alt="GitHub version">
+</a>
+<a href="https://github.com/hexoh/claude-nvidia-proxy/releases">
+   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg" alt="Platform">
+</a>
+<a href="https://github.com/hexoh/claude-nvidia-proxy/blob/main/LICENSE">
+   <img src="https://img.shields.io/github/license/hexoh/claude-nvidia-proxy.svg" alt="license">
+</a>
 
 A proxy server that converts Anthropic API requests to NVIDIA API requests.
+
+English | [中文](README.zh.md) | [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -32,89 +35,107 @@ A proxy server that converts Anthropic API requests to NVIDIA API requests.
 ### As npm package
 
 ```bash
-npm install claude-nvidia-proxy
+npm install -g claude-nvidia-proxy
 ```
 
 ## Usage
 
-### 1. Initial Configuration
-
-Before first use, run the configuration command:
-
-```bash
-cnp config
-```
-
-This will start an interactive configuration wizard. The config file will be saved to `~/.claude-nvidia-proxy/settings.json`.
-
-### 2. Start Service
+### Quick Start
 
 ```bash
 cnp start
 ```
 
-### 3. Other Commands
+If no configuration exists, the service will automatically prompt you to configure:
 
-```bash
-# Stop service
-cnp stop
-
-# Restart service
-cnp restart
-
-# View service status
-cnp status
-
-# View logs
-cnp logs
-
-# Follow logs in real-time
-cnp logs --tail
-
-# View last 100 lines
-cnp logs --lines=100
-
-# View error logs only
-cnp logs --error
-
-# View access logs only
-cnp logs --access
-
-# Model management
-cnp model list
-cnp model add z-ai/glm4.7
-cnp model rm z-ai/glm4.7
-cnp model setup
-
-# Test a model
-cnp test
-cnp test z-ai/glm4.7
+```
+? Configuration file does not exist. Do you want to configure now? (y/N): y
+? Enter NVIDIA API Key: nvapi-xxxxxxxxxxxxxxxx
+listening on localhost:8888
 ```
 
-### 4. Use as npm Package
+**Complete Setup Guide:**
 
-```javascript
-import { main } from 'claude-nvidia-proxy';
+1. **Start service** (auto-configure if needed):
+   ```bash
+   cnp start
+   ```
 
-// Start service directly
-main();
-```
+2. **Configure Claude Code models** (recommended):
+   ```bash
+   cnp model setup
+   ```
+   
+   This will guide you to select models for HAIKU, SONNET, and OPUS:
+   
+   ```
+   === Claude Code Model Configuration ===
+   
+   Found 2 available models:
+     1. z-ai/glm4.7
+     2. minimaxai/minimax-m2.7
+   
+   Available models for ANTHROPIC_DEFAULT_HAIKU_MODEL:
+     1. z-ai/glm4.7 (default)
+     2. minimaxai/minimax-m2.7
+   Select model for ANTHROPIC_DEFAULT_HAIKU_MODEL [1-2, default: 1]: 1
+   
+   Available models for ANTHROPIC_DEFAULT_SONNET_MODEL:
+     1. z-ai/glm4.7
+     2. minimaxai/minimax-m2.7 (default)
+   Select model for ANTHROPIC_DEFAULT_SONNET_MODEL [1-2, default: 2]: 2
+   
+   Available models for ANTHROPIC_DEFAULT_OPUS_MODEL:
+     1. z-ai/glm4.7 (default)
+     2. minimaxai/minimax-m2.7
+   Select model for ANTHROPIC_DEFAULT_OPUS_MODEL [1-2, default: 1]: 1
+   
+   =========================================
+   Model configuration complete:
+     ANTHROPIC_DEFAULT_HAIKU_MODEL  -> z-ai/glm4.7
+     ANTHROPIC_DEFAULT_SONNET_MODEL -> minimaxai/minimax-m2.7
+     ANTHROPIC_DEFAULT_OPUS_MODEL    -> z-ai/glm4.7
+   ========================================
+   Please start or restart Claude Code to apply the configuration.
+   ```
+   
+   This command will:
+   - Backup your existing Claude Code config
+   - Auto-configure the three model tiers (HAIKU, SONNET, OPUS)
+   - Install config to `~/.claude/settings.json`
+   - Auto-start or restart the proxy service
 
-### 5. Global Installation
+3. **Restart Claude Code** to use the new configuration.
 
-```bash
-# Install globally
-npm install -g claude-nvidia-proxy
+**Note:**
 
-# Start service
-cnp start
-```
+### Other Commands
+
+- `cnp config` - Configure or reconfigure the proxy (requires NVIDIA API Key)
+- `cnp start` - Start the proxy service
+- `cnp stop` - Stop the proxy service
+- `cnp restart` - Restart the proxy service
+- `cnp status` - View service status
+- `cnp logs` - View recent logs
+- `cnp logs --tail` - Follow logs in real-time
+- `cnp logs --lines=100` - View last N lines
+- `cnp logs --error` - View error logs only
+- `cnp logs --access` - View access logs only
+- `cnp model list` - List available models
+- `cnp model add <model>` - Add a new model (e.g., `cnp model add z-ai/glm4.7`)
+- `cnp model rm <model>` - Remove a model (by name or index)
+- `cnp model setup` - Configure Claude Code model tiers (HAIKU, SONNET, OPUS)
+- `cnp test` - Test all available models
+- `cnp test <model>` - Test a specific model
 
 ## Configuration
 
 ### Config File
 
-Location: `~/.claude-nvidia-proxy/settings.json`
+| OS | Location |
+|--------|-------------|
+| Windows | `C:\Users\<username>\.claude-nvidia-proxy\settings.json` |
+| macOS / Linux | `~/.claude-nvidia-proxy/settings.json` |
 
 Format:
 
@@ -158,7 +179,10 @@ Environment variables can override config file settings (higher priority):
 
 ### Log System
 
-Log location: `~/.claude-nvidia-proxy/logs/`
+| OS | Log Location |
+|--------|-------------|
+| Windows | `C:\Users\<username>\.claude-nvidia-proxy\logs\` |
+| macOS / Linux | `~/.claude-nvidia-proxy/logs/` |
 
 Log types:
 - `proxy-YYYY-MM-DD.log` - Main log
@@ -191,9 +215,6 @@ curl -X POST http://localhost:8888/v1/messages \
 
 ### Supported Models
 
-- `meta/llama-3.1-405b-instruct`
-- `meta/llama-3.1-70b-instruct`
-- `meta/llama-3.1-8b-instruct`
 - `z-ai/glm4.7`
 - `minimaxai/minimax-m2.7`
 
@@ -221,19 +242,9 @@ This command will:
 
 Before using `model setup`, manage the available models:
 
-```bash
-# List available models
-cnp model list
-
-# Add new model
-cnp model add z-ai/glm4.7
-
-# Remove model (by name)
-cnp model rm z-ai/glm4.7
-
-# Remove model (by index)
-cnp model rm 1
-```
+- `cnp model list` - List available models
+- `cnp model add <model>` - Add a new model (e.g., `cnp model add z-ai/glm4.7`)
+- `cnp model rm <model>` - Remove a model (by name or index, e.g., `cnp model rm z-ai/glm4.7` or `cnp model rm 1`)
 
 **Notes:**
 - When adding, if model exists, shows "Model already exists"
@@ -269,7 +280,7 @@ Configuration notes:
 
 ### Model Configuration
 
-Available models are stored in `~/.claude-nvidia-proxy/models.json`, auto-copied from `config/models.json` on first run.
+Available models are stored in `~/.claude-nvidia-proxy/models.json`
 
 Default models:
 ```json
@@ -280,22 +291,6 @@ Default models:
 ```
 
 Use `cnp model add` and `cnp model rm` to manage available models.
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run dev server
-npm run dev
-
-# Run tests
-npm test
-
-# Build production
-npm run build
-```
 
 ## Troubleshooting
 
@@ -374,5 +369,3 @@ MIT
 ## Contributing
 
 Issues and Pull Requests are welcome! See [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md)
-
-</div>

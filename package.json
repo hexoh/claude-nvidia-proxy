@@ -10,6 +10,7 @@
   "type": "module",
   "scripts": {
     "build": "node script/build.js",
+    "release": "standard-version",
     "start": "node dist/cli/index.js start",
     "dev": "node src/cli/index.js start",
     "serve": "node src/cli/index.js start",
@@ -39,10 +40,8 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "src",
     "dist",
-    "script/build.js",
-    "examples",
+    "config",
     "README.md",
     "LICENSE"
   ],
@@ -51,6 +50,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "esbuild": "^0.28.0"
+    "esbuild": "^0.28.0",
+    "standard-version": "^9.5.0"
   }
 }
