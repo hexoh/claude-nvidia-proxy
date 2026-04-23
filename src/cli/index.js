@@ -60,6 +60,9 @@ async function main() {
     console.log('  rm <model>       Remove a model');
     console.log('  setup            Setup Claude Code model configuration');
     console.log('');
+    console.log('Test command options:');
+    console.log('  test [model]     Test a model with a prompt');
+    console.log('');
     console.log('Examples:');
     console.log('  cnp start');
     console.log('  cnp logs --tail');
@@ -67,6 +70,8 @@ async function main() {
     console.log('  cnp model list');
     console.log('  cnp model add z-ai/glm4.7');
     console.log('  cnp model setup');
+    console.log('  cnp test');
+    console.log('  cnp test z-ai/glm4.7');
     process.exit(0);
   }
 
@@ -122,6 +127,13 @@ async function main() {
           process.exit(1);
       }
       break;
+    case 'test':
+      if (!args[0] || args[0] === '--help' || args[0] === '-h') {
+        await testHelpCommand();
+        process.exit(0);
+      }
+      await testCommand(args[0]);
+      break;
     default:
       console.log('Claude NVIDIA Proxy - CLI Tool');
       console.log('');
@@ -146,20 +158,25 @@ async function main() {
       console.log('  --error, -e       Show only error logs');
       console.log('  --access, -a      Show only access logs');
       console.log('');
-      console.log('Model command options:');
-      console.log('  list             List available models');
-      console.log('  add <model>      Add a new model');
-      console.log('  rm <model>       Remove a model');
-      console.log('  setup            Setup Claude Code model configuration');
-      console.log('');
-      console.log('Examples:');
-      console.log('  cnp start');
-      console.log('  cnp logs --tail');
-      console.log('  cnp logs --lines=100 --error');
-      console.log('  cnp model list');
-      console.log('  cnp model add z-ai/glm4.7');
-      console.log('  cnp model setup');
-      process.exit(0);
+console.log('Model command options:');
+    console.log('  list             List available models');
+    console.log('  add <model>      Add a new model');
+    console.log('  rm <model>       Remove a model');
+    console.log('  setup            Setup Claude Code model configuration');
+    console.log('');
+    console.log('Test command options:');
+    console.log('  test [model]     Test a model with a prompt');
+    console.log('');
+    console.log('Examples:');
+    console.log('  cnp start');
+    console.log('  cnp logs --tail');
+    console.log('  cnp logs --lines=100 --error');
+    console.log('  cnp model list');
+    console.log('  cnp model add z-ai/glm4.7');
+    console.log('  cnp model setup');
+    console.log('  cnp test');
+    console.log('  cnp test z-ai/glm4.7');
+    process.exit(0);
   }
 }
 

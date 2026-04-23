@@ -18,7 +18,7 @@ const srcDir = path.join(rootDir, 'src');
 
 // Files that need bundling (with external dependencies)
 const filesToBundle = [
-  { entry: path.join(srcDir, 'test', 'test-nvidia.js'), out: path.join(distDir, 'test', 'test-nvidia.js') },
+  { entry: path.join(srcDir, 'cli', 'commands', 'test.js'), out: path.join(distDir, 'cli', 'commands', 'test.js') },
 ];
 
 for (const file of filesToBundle) {
@@ -38,15 +38,11 @@ for (const file of filesToBundle) {
   console.log(`Bundled: ${path.relative(rootDir, file.out)}`);
 }
 
-// Copy other files from src to dist (skip test - it's bundled)
+// Copy other files from src to dist
 function copyDir(src, dest) {
   const entries = fs.readdirSync(src, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (entry.name === 'test') {
-      continue;
-    }
-
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 
@@ -54,6 +50,10 @@ function copyDir(src, dest) {
       fs.mkdirSync(destPath, { recursive: true });
       copyDir(srcPath, destPath);
     } else {
+      // Skip test.js in commands directory (it's bundled)
+      if (entry.name === 'test.js' && src.includes('commands')) {
+        continue;
+      }
       fs.copyFileSync(srcPath, destPath);
     }
   }

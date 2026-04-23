@@ -6,51 +6,51 @@ labels: bug
 assignees: ''
 ---
 
-## 描述
+## Description
 
-简要描述遇到的问题。
+Briefly describe the problem you encountered.
 
-## 复现步骤
+## Steps to Reproduce
 
-1. 执行 '...'
-2. 点击 '....'
-3. 滚动到 '....'
-4. 看到错误
+1. Go to '...'
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
-## 预期行为
+## Expected Behavior
 
-描述你期望发生的事情。
+Describe what you expected to happen.
 
-## 实际行为
+## Actual Behavior
 
-描述实际发生的事情。
+Describe what actually happened.
 
-## 截图
+## Screenshots
 
-如果适用，添加截图来解释你的问题。
+Add screenshots if applicable to explain your problem.
 
-## 环境信息
+## Environment Information
 
 - OS: [e.g. macOS, Windows, Linux]
-- Node.js 版本: [e.g. 18.0.0]
-- npm 版本: [e.g. 9.0.0]
-- 项目版本: [e.g. 1.0.0]
+- Node.js version: [e.g. 18.0.0]
+- npm version: [e.g. 9.0.0]
+- Project version: [e.g. 1.0.0]
 
-## 配置
+## Configuration
 
 ```env
-# 粘贴你的 .env 配置（移除敏感信息）
+# Paste your .env configuration (remove sensitive information)
 UPSTREAM_URL=...
 PROVIDER_API_KEY=...
 SERVER_API_KEY=...
 ```
 
-## 日志
+## Logs
 
 ```bash
-# 粘贴相关的日志输出
+# Paste relevant log output
 ```
 
-## 附加信息
+## Additional Information
 
-添加任何其他关于问题的信息。
+Add any other information about the issue.

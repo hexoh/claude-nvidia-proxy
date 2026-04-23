@@ -3,6 +3,7 @@ import readline from 'readline';
 import { readConfigFile, readModelsFile } from '../../config/index.js';
 
 const BASE_URL = 'https://integrate.api.nvidia.com/v1';
+const DEFAULT_PROMPT = 'Hello, please tell me a little about yourself.';
 
 export async function testCommand(modelName) {
   const config = readConfigFile();
@@ -49,36 +50,21 @@ export async function testCommand(modelName) {
 
   console.log(`Testing model: ${selectedModel}`);
   console.log('');
+  console.log(`Prompt: ${DEFAULT_PROMPT}`);
+  console.log('');
+  console.log('--- Response ---');
+  console.log('');
 
   const openai = new OpenAI({
     apiKey: config.NV_API_KEY,
     baseURL: BASE_URL
   });
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  const prompt = await new Promise(resolve => {
-    rl.question('Enter your prompt: ', resolve);
-  });
-  rl.close();
-
-  if (!prompt.trim()) {
-    console.error('Error: Prompt cannot be empty');
-    process.exit(1);
-  }
-
-  console.log('');
-  console.log('--- Response ---');
-  console.log('');
-
   const startTime = Date.now();
 
   const completion = await openai.chat.completions.create({
     model: selectedModel,
-    messages: [{ role: 'user', content: prompt.trim() }],
+    messages: [{ role: 'user', content: DEFAULT_PROMPT }],
     temperature: 1,
     top_p: 1,
     max_tokens: 16384,

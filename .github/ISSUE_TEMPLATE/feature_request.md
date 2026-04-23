@@ -6,22 +6,22 @@ labels: enhancement
 assignees: ''
 ---
 
-## 功能描述
+## Feature Description
 
-简要描述你想要的功能。
+Briefly describe the feature you want.
 
-## 问题背景
+## Problem Background
 
-这个功能解决了什么问题？是否有相关的 Issue？
+What problem does this feature solve? Is there a related issue?
 
-## 建议的解决方案
+## Proposed Solution
 
-详细描述你希望如何实现这个功能。
+Describe in detail how you would like this feature to be implemented.
 
-## 替代方案
+## Alternative Solutions
 
-描述你考虑过的任何替代解决方案或功能。
+Describe any alternative solutions or features you have considered.
 
-## 附加信息
+## Additional Information
 
-添加任何其他关于功能请求的信息、截图等。
+Add any other information about the feature request, screenshots, etc.
